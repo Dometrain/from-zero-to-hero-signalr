@@ -1,0 +1,11 @@
+@SignalRAOTApp_HostAddress = http://localhost:5174
+
+GET {{SignalRAOTApp_HostAddress}}/todos/
+Accept: application/json
+
+###
+
+GET {{SignalRAOTApp_HostAddress}}/todos/1
+Accept: application/json
+
+###

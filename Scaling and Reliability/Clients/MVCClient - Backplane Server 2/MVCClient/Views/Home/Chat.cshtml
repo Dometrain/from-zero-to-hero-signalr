@@ -1,0 +1,150 @@
+﻿@page
+@model MVCClient.Views.Home.Chat
+
+@{
+    Layout = @"_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+    <h1>Username: @ViewBag.Username</h1>
+    <h2>Server Status:</h2>
+    <h3 id="status"></h3>
+    <h2>Team: </h2>
+    <h3 id="team"></h3>
+    <h2>Connected Users:</h2>
+    <ul id="userList">
+        
+    </ul>
+   
+    
+    <div>
+        <ul id="messagesList">
+        </ul>
+        
+        <br/>
+        <label for="sendButton">Message</label>
+        <br/>
+        <textarea id="messageInput" rows="4" cols="50"></textarea>
+        <button id="sendButton">Send</button>
+        
+       
+    </div>
+    
+     @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js\"></script>") 
+            <script>
+                const serverUrl = "http://localhost:5001/hubs/chat";
+                let jwtToken = null;
+                let connection = null;
+                const setStatus = t => document.getElementById("status").textContent = t;
+                const setTeamStatus = t => document.getElementById("team").textContent = t;
+                start();
+                
+                async function start() {
+                    try {
+                        setStatus("Connecting...");
+                   
+                        var username = "@ViewBag.Username";
+                        var password = "@ViewBag.Password";
+
+                        const result = await fetch("http://localhost:5001/login", {
+                            method: "POST",
+                            headers: {"content-type" : "application/json"},
+                            body: JSON.stringify({username, password})
+                        });
+
+                        if(!result.ok){
+                            alert("Login failed.");
+                            window.location.href = "/";
+                            return;
+                        }
+
+                        const data = await result.json();
+                        jwtToken = data.access_token;
+
+
+                        connection = new signalR.HubConnectionBuilder()
+                            .withUrl(serverUrl, {
+                                accessTokenFactory: () => jwtToken
+                            })
+                            .withAutomaticReconnect()
+                            .configureLogging(signalR.LogLevel.Information)
+                            .build();
+
+                        await connection.start();
+
+                        connection.on("UpdateConnectionNames", (connectionNames) => {
+                            const userListElement = document.getElementById("userList");
+                            userListElement.innerHTML = "";
+                            connectionNames.forEach(connectionName => {
+                                const li = document.createElement("li");
+                                li.textContent = connectionName;
+                                userListElement.appendChild(li);
+                            });
+                        });
+
+
+                        connection.on("ReceiveMessage", (message, user) => {
+                            const msg = `${user}: ${message}`;
+                            const li = document.createElement("li");
+                            li.textContent = msg;
+                            document.getElementById("messagesList").appendChild(li);
+                        });
+
+                        document.getElementById("sendButton").addEventListener("click", async() => {
+                            const user = "@ViewBag.Username";
+                            const message = document.getElementById("messageInput").value;
+                            try {
+                                await connection.invoke("SendMessage", message);
+                                document.getElementById("messageInput").value = "";
+                            } catch(err){
+                                console.log(err);
+                            }
+                        });
+
+                        connection.onreconnecting(() => setStatus("Reconnecting..."));
+                        connection.onreconnected(() => setStatus("Connected"));
+                        connection.onclose(() => setStatus("Disconnected"));
+                        
+                        
+                        await joinSelectedTeam();
+                        setStatus("Connected");
+                        console.log("Connected");
+                        
+                    } catch (err) {
+                        console.error("Connection failed:", err);
+                        setStatus("Connection failed. Retrying in 3s...");
+                        setTimeout(start, 3000);
+                    }
+                }
+                
+               
+                
+                async function joinSelectedTeam(){
+                    const team = "@ViewBag.Team";
+                    const userName = "@ViewBag.Username";
+                    try{
+                        await connection.invoke("RegisterClient", team, userName).then(() =>{
+                            setTeamStatus("@ViewBag.Team");
+                        });
+                    }
+                    catch(err){
+                        alert("Looks like you're not in this team!");
+                        console.log("Looks like you're not in this team!", err);
+                        window.location.href = "/";
+                    }
+                }
+
+
+                
+               
+
+            </script>
+    
+    </body>
+</html>

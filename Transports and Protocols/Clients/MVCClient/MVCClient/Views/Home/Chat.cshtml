@@ -1,0 +1,205 @@
+﻿@page
+@model MVCClient.Views.Home.Chat
+
+@{
+    Layout = @"_Layout";
+}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+    <h1>Username: @ViewBag.Username</h1>
+    <h2>Server Status:</h2>
+    <h3 id="status"></h3>
+    <h2>Team: </h2>
+    <h3 id="team"></h3>
+    <h2>Connected Users:</h2>
+    <ul id="userList">
+        
+    </ul>
+   
+    
+    <div>
+        <ul id="messagesList">
+        </ul>
+        
+        <br/>
+        <label for="sendButton">Message</label>
+        <br/>
+        <textarea id="messageInput" rows="4" cols="50"></textarea>
+        <button id="sendButton">Send</button>
+        
+       
+    </div>
+    
+     @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js\"></script>") 
+     @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@9.0.6/dist/browser/signalr-protocol-msgpack.min.js\"></script>")
+     <script>
+
+         class MyCustomProtocol {
+             constructor() {
+                 this.name = "MyCustomProtocol";
+                 this.version = 1;
+                 this.transferFormat = signalR.TransferFormat.Text;
+             }
+
+             writeMessage(message) {
+                 document.getElementById("messageInput").value = "";
+
+                 switch (message.type) {
+                     case signalR.MessageType.Invocation:
+                         let parts = [
+                             "Invocation",
+                             message.target,
+                             message.arguments.length,
+                             ...message.arguments
+                         ];
+                         return parts.join("|") + "\n";
+
+                     case signalR.MessageType.Ping:
+                         return "Ping"  + "\n";
+
+                     case signalR.MessageType.Completion:
+                         return `Completion|${message.invocationId}|${message.error ?? ""}`  + "\n";
+
+                     default:
+                         console.warn("Unsupported message type:", message.type);
+                         return "";
+                 }
+             }
+
+             parseMessages(input) {
+                 if (input === "Ping") {
+                     return [{
+                         type: signalR.MessageType.Ping
+                     }];
+                 }
+
+                 let parts = input.split("|");
+                 if (parts[0] === "Invocation") {
+                     let target = parts[1];
+                     let argCount = parseInt(parts[2], 10);
+                     let args = parts.slice(3, 3 + argCount);
+                     return [{
+                         type: signalR.MessageType.Invocation,
+                         target: target,
+                         arguments: args
+                     }];
+                 }
+
+                 // Handle Completion if needed
+                 if (parts[0] === "Completion") {
+                     return [{
+                         type: signalR.MessageType.Completion,
+                         invocationId: parts[1],
+                         error: parts[2] || null
+                     }];
+                 }
+
+                 console.warn("Unknown message:", input);
+                 return [];
+             }
+         }
+         
+         const serverUrl = "https://localhost:7044/hubs/chat";
+                
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl(serverUrl) // OPTIONAL - choose a transport
+                  // ,{
+                        
+                        //FORCE WEBSOCKETS
+                        //transport: signalR.HttpTransportType.WebSockets,
+                        //skipNegotiation: true, //ONLY IF FORCING WEBSOCKETS
+                
+                        //FORCE SERVER-SENT-EVENTS
+                        //transport: signalR.HttpTransportType.ServerSentEvents,
+
+                        //FORCE LONG-POLLING
+                        //transport: signalR.HttpTransportType.LongPolling,
+                        
+                        
+                    //})
+                    //OPTIONAL - ENABLE MESSAGEPACK PROTOCOL
+                    //.withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
+                    .withAutomaticReconnect([2000, 4000, 10000])
+                    .withHubProtocol(new MyCustomProtocol())
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+                
+                const setStatus = t => document.getElementById("status").textContent = t;
+                const setTeamStatus = t => document.getElementById("team").textContent = t;
+                
+                
+                async function start() {
+                    try {
+                        setStatus("Connecting...");
+                        await connection.start();
+                        await joinSelectedTeam();
+                        setStatus("Connected");
+                        console.log("Connected");
+                    } catch (err) {
+                        console.error("Connection failed:", err);
+                        setStatus("Connection failed. Retrying in 3s...");
+                        setTimeout(start, 3000);
+                    }
+                }
+                
+                connection.on("UpdateConnectionNames", (connectionNames) => {
+                    const userListElement = document.getElementById("userList");
+                    userListElement.innerHTML = "";
+                    connectionNames.forEach(connectionName => {
+                        const li = document.createElement("li");
+                        li.textContent = connectionName;
+                        userListElement.appendChild(li);
+                    });
+                });
+                
+
+                connection.on("ReceiveMessage", (message, user) => {
+                        const msg = `${user}: ${message}`;
+                        const li = document.createElement("li");
+                        li.textContent = msg;
+                        document.getElementById("messagesList").appendChild(li);
+                });
+
+                document.getElementById("sendButton").addEventListener("click", async() => {
+                        const user = "@ViewBag.Username";
+                        const message = document.getElementById("messageInput").value;
+                        try {
+                                await connection.invoke("SendToGroup", "@ViewBag.Team", message);
+                                document.getElementById("messageInput").value = "";
+                        } catch(err){
+                            console.log(err);
+                        }
+                });
+                
+                async function joinSelectedTeam(){
+                    const team = "@ViewBag.Team";
+                    const userName = "@ViewBag.Username";
+                    try{
+                        await connection.invoke("RegisterClient", team, userName).then(() =>{
+                            setTeamStatus("@ViewBag.Team");
+                        });
+                    }
+                    catch(err){
+                        console.log(err);
+                    }
+                }
+
+                connection.onreconnecting(() => setStatus("Reconnecting..."));
+                connection.onreconnected(() => setStatus("Connected"));
+                connection.onclose(() => setStatus("Disconnected"));
+                
+                start();
+
+
+                
+
+            </script>
+    
+    </body>
+</html>
