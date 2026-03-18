@@ -1,0 +1,57 @@
+2025-10-06 21:09:47.614 +01:00 [INF] User profile is available. Using 'C:\Users\nickp\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-10-06 21:09:47.900 +01:00 [INF] Now listening on: https://localhost:7044
+2025-10-06 21:09:47.902 +01:00 [INF] Now listening on: http://localhost:5276
+2025-10-06 21:09:47.904 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-10-06 21:09:47.904 +01:00 [INF] Hosting environment: Development
+2025-10-06 21:09:47.905 +01:00 [INF] Content root path: C:\Repos\DometrainRepos\from-zero-to-hero-signalr\Logging, Debugging and Testing\RealTimeDemo\RealTimeDemo
+2025-10-06 21:09:48.550 +01:00 [INF] Request starting HTTP/2 GET https://localhost:7044/ - null null
+2025-10-06 21:09:48.670 +01:00 [INF] Executing endpoint 'HTTP: GET /'
+2025-10-06 21:09:48.673 +01:00 [INF] Executed endpoint 'HTTP: GET /'
+2025-10-06 21:09:48.675 +01:00 [INF] Request finished HTTP/2 GET https://localhost:7044/ - 200 null text/plain; charset=utf-8 128.0269ms
+2025-10-06 21:10:24.001 +01:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7044/login - null null
+2025-10-06 21:10:24.009 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:10:24.013 +01:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7044/login - 204 null null 12.0188ms
+2025-10-06 21:10:24.074 +01:00 [INF] Request starting HTTP/2 POST https://localhost:7044/login - application/json 45
+2025-10-06 21:10:24.079 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:10:24.080 +01:00 [INF] Executing endpoint 'HTTP: POST /login'
+2025-10-06 21:10:24.133 +01:00 [INF] Setting HTTP status code 200.
+2025-10-06 21:10:24.140 +01:00 [INF] Writing value of type '<>f__AnonymousType0`2' as Json.
+2025-10-06 21:10:24.144 +01:00 [INF] Executed endpoint 'HTTP: POST /login'
+2025-10-06 21:10:24.145 +01:00 [INF] Request finished HTTP/2 POST https://localhost:7044/login - 200 null application/json; charset=utf-8 71.5892ms
+2025-10-06 21:10:24.148 +01:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - null null
+2025-10-06 21:10:24.151 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:10:24.152 +01:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - 204 null null 3.2719ms
+2025-10-06 21:10:24.153 +01:00 [INF] Request starting HTTP/2 POST https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - null 0
+2025-10-06 21:10:24.156 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:10:24.214 +01:00 [INF] Executing endpoint '/hubs/chat/negotiate'
+2025-10-06 21:10:24.223 +01:00 [INF] Executed endpoint '/hubs/chat/negotiate'
+2025-10-06 21:10:24.225 +01:00 [INF] Request finished HTTP/2 POST https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - 200 316 application/json 71.3309ms
+2025-10-06 21:10:24.226 +01:00 [INF] Request starting HTTP/2 CONNECT https://localhost:7044/hubs/chat?id=YkoSIOAERBSzcbD-iPKYVg&access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNrLXBybyIsInN1YnNjcmlwdGlvbiI6InBybyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlNhbGVzIiwiZXhwIjoxNzU5NzgzMjI0LCJpc3MiOiJEb21lVHJhaW4iLCJhdWQiOiJTdHVkZW50cyJ9.ByDsDdSdYrZjG6H2N4zfu0yyhr_Shrgwe0t_v-m4_AY - null null
+2025-10-06 21:10:24.229 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:10:24.231 +01:00 [INF] Executing endpoint '/hubs/chat'
+2025-10-06 21:10:24.253 +01:00 [INF] Client connected 7ewCHNpN6jzSkB6jew0Gcg
+2025-10-06 21:11:25.705 +01:00 [WRN] Client disconnected 7ewCHNpN6jzSkB6jew0Gcg. Error No error
+2025-10-06 21:11:25.710 +01:00 [INF] Executed endpoint '/hubs/chat'
+2025-10-06 21:11:25.715 +01:00 [INF] Request finished HTTP/2 CONNECT https://localhost:7044/hubs/chat?id=YkoSIOAERBSzcbD-iPKYVg&access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNrLXBybyIsInN1YnNjcmlwdGlvbiI6InBybyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlNhbGVzIiwiZXhwIjoxNzU5NzgzMjI0LCJpc3MiOiJEb21lVHJhaW4iLCJhdWQiOiJTdHVkZW50cyJ9.ByDsDdSdYrZjG6H2N4zfu0yyhr_Shrgwe0t_v-m4_AY - 200 null null 61489.1009ms
+2025-10-06 21:11:25.932 +01:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7044/login - null null
+2025-10-06 21:11:25.936 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:11:25.938 +01:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7044/login - 204 null null 5.7232ms
+2025-10-06 21:11:25.939 +01:00 [INF] Request starting HTTP/2 POST https://localhost:7044/login - application/json 45
+2025-10-06 21:11:25.943 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:11:25.944 +01:00 [INF] Executing endpoint 'HTTP: POST /login'
+2025-10-06 21:11:25.947 +01:00 [INF] Setting HTTP status code 200.
+2025-10-06 21:11:25.948 +01:00 [INF] Writing value of type '<>f__AnonymousType0`2' as Json.
+2025-10-06 21:11:25.949 +01:00 [INF] Executed endpoint 'HTTP: POST /login'
+2025-10-06 21:11:25.950 +01:00 [INF] Request finished HTTP/2 POST https://localhost:7044/login - 200 null application/json; charset=utf-8 11.0543ms
+2025-10-06 21:11:25.953 +01:00 [INF] Request starting HTTP/2 OPTIONS https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - null null
+2025-10-06 21:11:25.957 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:11:25.958 +01:00 [INF] Request finished HTTP/2 OPTIONS https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - 204 null null 4.7495ms
+2025-10-06 21:11:25.959 +01:00 [INF] Request starting HTTP/2 POST https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - null 0
+2025-10-06 21:11:25.963 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:11:25.965 +01:00 [INF] Executing endpoint '/hubs/chat/negotiate'
+2025-10-06 21:11:25.966 +01:00 [INF] Executed endpoint '/hubs/chat/negotiate'
+2025-10-06 21:11:25.967 +01:00 [INF] Request finished HTTP/2 POST https://localhost:7044/hubs/chat/negotiate?negotiateVersion=1 - 200 316 application/json 8.3572ms
+2025-10-06 21:11:25.971 +01:00 [INF] Request starting HTTP/2 CONNECT https://localhost:7044/hubs/chat?id=7EPv8WvvLGSQFmCAB1vf5Q&access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNrLXBybyIsInN1YnNjcmlwdGlvbiI6InBybyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlNhbGVzIiwiZXhwIjoxNzU5NzgzMjg1LCJpc3MiOiJEb21lVHJhaW4iLCJhdWQiOiJTdHVkZW50cyJ9.3HTD-Kkz2MtiPobTRvobMJdDhtDNgj27W15k9S9yHa8 - null null
+2025-10-06 21:11:25.973 +01:00 [INF] CORS policy execution successful.
+2025-10-06 21:11:25.975 +01:00 [INF] Executing endpoint '/hubs/chat'
+2025-10-06 21:11:25.978 +01:00 [INF] Client connected 2RV8eOOIrOBZywiPtV1lug

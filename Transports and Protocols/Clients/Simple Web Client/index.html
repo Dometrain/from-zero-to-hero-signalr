@@ -1,0 +1,68 @@
+<!doctype html>
+    <html>
+        <head><meta charset="utf-8"><title>SignalR Client (CDN)</title></head>
+        <body>
+            <h1>SignalR Client</h1>
+            <p id="status">Not connected</p>
+            <ul id="messagesList">
+            </ul>
+            <label for="userInput">From</label> 
+            <br/>
+            <input type="text" id="userInput" />
+            <br/>
+            <label for="sendButton">Message</label>
+            <br/>
+            <input type="text" id="messageInput" />
+            <button id="sendButton">Send</button>
+            <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+            <script>
+                const serverUrl = "https://localhost:7044/hubs/chat";
+                
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl(serverUrl)
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+                
+                const setStatus = t => document.getElementById("status").textContent = t;
+                
+                async function start() {
+                    try {
+                        setStatus("Connecting...");
+                        await connection.start();
+                        setStatus("Connected");
+                        console.log("Connected");
+                    } catch (err) {
+                        console.error("Connection failed:", err);
+                        setStatus("Connection failed. Retrying in 3s...");
+                        setTimeout(start, 3000);
+                    }
+                }
+                
+
+                connection.on("ReceiveMessage", (message, user) => {
+                        const msg = `${user}: ${message}`;
+                        const li = document.createElement("li");
+                        li.textContent = msg;
+                        document.getElementById("messagesList").appendChild(li);
+                });
+
+                document.getElementById("sendButton").addEventListener("click", async() => {
+                        const user = document.getElementById("userInput").value;
+                        const message = document.getElementById("messageInput").value;
+                        try {
+                                await connection.invoke("SendMessage", message, user);
+                        } catch(err){
+                            console.log(err);
+                        }
+                });
+
+                connection.onreconnecting(() => setStatus("Reconnecting..."));
+                connection.onreconnected(() => setStatus("Connected"));
+                connection.onclose(() => setStatus("Disconnected"));
+                
+                start();
+
+            </script>
+        </body>
+    </html>

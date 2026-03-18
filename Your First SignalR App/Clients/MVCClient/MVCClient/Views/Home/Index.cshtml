@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h3>Please enter your name to start chatting</h3>
+    
+    @using (Html.BeginForm("SubmitNameForm", "Home", FormMethod.Post))
+        {
+            <label>Username:</label>
+            <input type="text" name="name"/>
+            <button type="submit">Start Chatting</button>
+        }
+    
+</div>

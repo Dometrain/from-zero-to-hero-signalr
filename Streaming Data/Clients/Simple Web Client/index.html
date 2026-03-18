@@ -1,0 +1,206 @@
+<!doctype html>
+    <html>
+        <head><meta charset="utf-8"><title>SignalR Client (CDN)</title></head>
+        <body>
+            <h1>SignalR Client</h1>
+            <p id="status">Not connected</p>
+            <input type="file" id="fileInput" />
+            <button onclick="uploadFile()">Upload</button>
+
+             <h3>Download File</h3>
+            <button onclick="downloadFile()">Download</button>
+
+            <h3>Stock Ticker</h3>
+            <table id="stockTable">
+                <tr>
+                    <th>
+                        Symbol
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Timestamp
+                    </th>
+                </tr>
+            
+            </table>
+            
+            
+            <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@latest/dist/browser/signalr-protocol-msgpack.min.js"></script>
+
+            <script>
+                const serverUrl = "https://localhost:7044/hubs/stocks";
+                
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl(serverUrl)
+                    //.withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
+                
+                const setStatus = t => document.getElementById("status").textContent = t;
+                
+
+               async function sendNumbers(connection){
+                    const subject = new signalR.Subject();
+                    await connection.send("UploadNumber", subject);
+                    for (let i = 1; i <= 5; i++){
+                        subject.next(i);
+                        await new Promise(x => setTimeout(x, 1000));
+                    }
+                    subject.complete();
+               }
+
+
+                async function downloadFile(){
+                    const chunks = [];
+
+                    const stream = connection.stream("DownloadFile");
+                    stream.subscribe({
+                        next: (chunk) => {
+                            chunks.push(chunk);
+                            console.log("Received chunk", chunk.length);
+                        },
+                        complete: () => {
+                            console.log("Stream complete. Assembling file");
+                            const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+                            const combined = new Uint8Array(totalLength);
+
+                            let offset = 0;
+
+                            for(const c of chunks){
+                                combined.set(c, offset);
+                                offset += c.length;
+                            }
+
+                            const blob = new Blob([combined]);
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "nick.jpg";
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+
+                            URL.revokeObjectURL(url);
+                        },
+                        error: (err) => console.log(err)
+                    });
+                }
+
+
+
+
+               async function uploadFile(){
+                    const file = document.getElementById("fileInput").files[0];
+                    if(!file) return;
+
+                    const subject = new signalR.Subject();
+                    await connection.send("UploadBytes", subject);
+
+                    const chunkSize = 1024;
+                    let offSet = 0;
+
+                    function readNextChunk(){
+                        const slice = file.slice(offSet, offSet + chunkSize);
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                          const chunk  = new Uint8Array(e.target.result);
+                          
+                          subject.next(chunk);
+                          offSet += chunkSize;
+
+                          if(offSet < file.size){
+                            readNextChunk();
+                          } else {
+                            subject.complete();
+                            console.log("Upload complete");
+                          }
+                        };
+
+                        reader.readAsArrayBuffer(slice);
+                    }
+
+                    readNextChunk();
+               }
+
+
+                async function start() {
+                    try {
+                        setStatus("Connecting...");
+                        await connection.start();
+                        setStatus("Connected");
+                        console.log("Connected");
+                      
+                        //await sendNumbers(connection);
+                       
+                         connection.stream("StreamStockPrices")
+                            .subscribe(
+                                {
+                                    next: (stock) => {
+                                        updateStockTicker(stock);
+                                    },
+                                    complete: () => {
+                                        console.log("Stream Completed");
+                                    },
+                                    error: (err) => {
+                                        console.log(err);
+                                    }
+                                }
+                            ) 
+                                
+                    } catch (err) {
+                        console.error("Connection failed:", err);
+                        setStatus("Connection failed. Retrying in 3s...");
+                        setTimeout(start, 3000);
+                    }
+                }
+                
+
+
+
+                connection.onreconnecting(() => setStatus("Reconnecting..."));
+                connection.onreconnected(() => setStatus("Connected"));
+                connection.onclose(() => setStatus("Disconnected"));
+                
+                start();
+
+                function updateStockTicker(stock){
+                    var row = document.getElementById(stock.symbol);
+                    if(!row){
+                         row = createStockRow(stock.symbol);
+                    }
+
+                    row.querySelector(".price").textContent = stock.price;
+                    row.querySelector(".timeStamp").textContent = new Date(stock.timeStamp).toLocaleTimeString();
+                }
+
+                function createStockRow(symbol){
+                    const table = document.getElementById("stockTable");
+                    const row = document.createElement("tr");
+                    row.id = symbol;
+                    const symbolCell = document.createElement("td");
+                    symbolCell.textContent = symbol;
+                    const priceCell = document.createElement("td");
+                    priceCell.className = "price";
+                    const timeStampCell = document.createElement("td");
+                    timeStampCell.className = "timeStamp";
+                    row.append(symbolCell, priceCell, timeStampCell);
+                    table.appendChild(row);
+                    return row;
+                }
+
+
+            </script>
+        </body>
+    </html>
+
+    <style>
+        table, th, td{
+            border: 1px, solid, black;
+        }
+    </style>
+
+

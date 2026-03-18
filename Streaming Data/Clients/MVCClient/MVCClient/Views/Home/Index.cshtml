@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    
+    List<string> teamsList = new List<string>()
+    {
+        "IT",
+        "Sales",
+        "HR",
+        "Finance",
+        "Operations"
+    };
+
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <h3>Please enter your name and select a team to start chatting</h3>
+    <br />
+    @using (Html.BeginForm("SubmitStartChatForm", "Home", FormMethod.Post))
+    {
+        <label>Username:</label>
+        <input type="text" name="name"/>
+        <br />
+        <label >Select a team:</label>
+        <select name="team">
+            @foreach (var team in teamsList)
+            {
+                <option value="@team">@team</option>
+            }
+        </select>
+        <button type="submit">Start Chatting</button>
+    }
+    
+</div>
+
